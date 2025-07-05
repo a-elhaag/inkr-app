@@ -1,75 +1,276 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { MotiView } from 'moti';
+import React from 'react';
+import {
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { FloatingActionButton, GlassButton, GlassCard } from '@/components/glass/GlassComponents';
+import { Colors, Spacing, Theme, Typography } from '@/constants/DesignSystem';
 
-export default function HomeScreen() {
+export default function HomeDashboard() {
+  const handleNewNote = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    // Navigation logic will go here
+    console.log('New note pressed');
+  };
+
+  const handleNotePress = (noteId: string) => {
+    Haptics.selectionAsync();
+    console.log('Note pressed:', noteId);
+  };
+
+  // Sample note data
+  const recentNotes = [
+    { id: '1', title: 'Morning Thoughts', preview: 'Today feels like a good day to...', time: '2 hours ago' },
+    { id: '2', title: 'Meeting Notes', preview: 'Key points from today\'s discussion...', time: '5 hours ago' },
+    { id: '3', title: 'Inspiration', preview: 'Sometimes the best ideas come when...', time: '1 day ago' },
+  ];
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      
+      {/* Background */}
+      <View style={styles.background} />
+      
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView 
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Welcome Header */}
+          <MotiView
+            from={{ opacity: 0, translateY: -20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'timing', duration: 600, delay: 200 }}
+            style={styles.headerSection}
+          >
+            <GlassCard style={styles.welcomeCard}>
+              <Text style={styles.welcomeTitle}>Good Morning</Text>
+              <Text style={styles.welcomeSubtitle}>Ready to capture your thoughts?</Text>
+            </GlassCard>
+          </MotiView>
+
+          {/* Quick Actions */}
+          <MotiView
+            from={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'timing', duration: 600, delay: 400 }}
+            style={styles.section}
+          >
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <View style={styles.actionButtons}>
+              <GlassButton
+                title="New Note"
+                onPress={handleNewNote}
+                variant="primary"
+                withOrangeGlow
+                style={styles.actionButton}
+              />
+              <GlassButton
+                title="Voice Memo"
+                onPress={() => console.log('Voice memo')}
+                variant="secondary"
+                style={styles.actionButton}
+              />
+            </View>
+          </MotiView>
+
+          {/* Recent Notes */}
+          <MotiView
+            from={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'timing', duration: 600, delay: 600 }}
+            style={styles.section}
+          >
+            <Text style={styles.sectionTitle}>Recent Notes</Text>
+            {recentNotes.map((note, index) => (
+              <MotiView
+                key={note.id}
+                from={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ 
+                  type: 'spring', 
+                  damping: 15, 
+                  stiffness: 100,
+                  delay: 700 + (index * 100)
+                }}
+                style={styles.noteCardContainer}
+              >
+                <GlassCard
+                  onPress={() => handleNotePress(note.id)}
+                  style={styles.noteCard}
+                >
+                  <View style={styles.noteContent}>
+                    <Text style={styles.noteTitle}>{note.title}</Text>
+                    <Text style={styles.notePreview}>{note.preview}</Text>
+                    <Text style={styles.noteTime}>{note.time}</Text>
+                  </View>
+                </GlassCard>
+              </MotiView>
+            ))}
+          </MotiView>
+
+          {/* Stats Overview */}
+          <MotiView
+            from={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'timing', duration: 600, delay: 1000 }}
+            style={styles.section}
+          >
+            <Text style={styles.sectionTitle}>Today's Progress</Text>
+            <GlassCard style={styles.statsCard}>
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>3</Text>
+                  <Text style={styles.statLabel}>Notes</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>12</Text>
+                  <Text style={styles.statLabel}>Minutes</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>5</Text>
+                  <Text style={styles.statLabel}>Ideas</Text>
+                </View>
+              </View>
+            </GlassCard>
+          </MotiView>
+
+          {/* Bottom spacing for FAB */}
+          <View style={styles.bottomSpacing} />
+        </ScrollView>
+      </SafeAreaView>
+
+      {/* Floating Action Button */}
+      <FloatingActionButton
+        onPress={handleNewNote}
+        withOrangeGlow
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: Colors.background.primary,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: Theme.layout.screen.paddingHorizontal,
+    paddingTop: Spacing.lg,
+  },
+  headerSection: {
+    marginBottom: Spacing.xxl,
+  },
+  welcomeCard: {
+    alignItems: 'center',
+    paddingVertical: Spacing.xxl,
+  },
+  welcomeTitle: {
+    fontSize: Typography.size.hero,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
+  },
+  welcomeSubtitle: {
+    fontSize: Typography.size.lg,
+    color: Colors.text.secondary,
+    textAlign: 'center',
+  },
+  section: {
+    marginBottom: Spacing.xxl,
+  },
+  sectionTitle: {
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.lg,
+    marginLeft: Spacing.xs,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  actionButton: {
+    flex: 1,
+  },
+  noteCardContainer: {
+    marginBottom: Spacing.md,
+  },
+  noteCard: {
+    padding: Spacing.lg,
+  },
+  noteContent: {
+    gap: Spacing.sm,
+  },
+  noteTitle: {
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+  },
+  notePreview: {
+    fontSize: Typography.size.md,
+    color: Colors.text.secondary,
+    lineHeight: Typography.lineHeight.relaxed * Typography.size.md,
+  },
+  noteTime: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.muted,
+    marginTop: Spacing.xs,
+  },
+  statsCard: {
+    padding: Spacing.lg,
+  },
+  statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-around',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  statNumber: {
+    fontSize: Typography.size.xxl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.primary.blue,
+    marginBottom: Spacing.xs,
+  },
+  statLabel: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
+    textAlign: 'center',
+  },
+  statDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: Colors.system.divider,
+    marginHorizontal: Spacing.md,
+  },
+  bottomSpacing: {
+    height: 100, // Space for floating action button
   },
 });

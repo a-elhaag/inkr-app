@@ -1,110 +1,345 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { MotiView } from 'moti';
+import React, { useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { GlassButton, GlassCard } from '@/components/glass/GlassComponents';
+import { Colors, Spacing, Theme, Typography } from '@/constants/DesignSystem';
 
-export default function TabTwoScreen() {
+interface Message {
+  id: string;
+  text: string;
+  isUser: boolean;
+  timestamp: Date;
+}
+
+export default function ChatMemoryScreen() {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      text: 'Welcome to Inkr! I\'m here to help you remember everything. What\'s on your mind today?',
+      isUser: false,
+      timestamp: new Date(),
+    }
+  ]);
+  const [inputText, setInputText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+
+  const handleSendMessage = () => {
+    if (inputText.trim()) {
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        text: inputText.trim(),
+        isUser: true,
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, newMessage]);
+      setInputText('');
+      setIsTyping(true);
+      
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+      // Simulate AI response
+      setTimeout(() => {
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          text: 'I\'ve saved that to your memory. Is there anything specific you\'d like me to help you remember about this?',
+          isUser: false,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, aiResponse]);
+        setIsTyping(false);
+      }, 1500);
+    }
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      
+      {/* Background */}
+      <View style={styles.background} />
+      
+      <SafeAreaView style={styles.safeArea}>
+        {/* Header */}
+        <MotiView
+          from={{ opacity: 0, translateY: -20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'timing', duration: 500 }}
+          style={styles.header}
+        >
+          <GlassCard style={styles.headerCard}>
+            <Text style={styles.headerTitle}>Always in Memory</Text>
+            <Text style={styles.headerSubtitle}>Your AI memory companion</Text>
+          </GlassCard>
+        </MotiView>
+
+        {/* Messages */}
+        <ScrollView 
+          style={styles.messagesContainer}
+          contentContainerStyle={styles.messagesContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {messages.map((message, index) => (
+            <MotiView
+              key={message.id}
+              from={{ opacity: 0, translateY: 20, scale: 0.9 }}
+              animate={{ opacity: 1, translateY: 0, scale: 1 }}
+              transition={{
+                type: 'spring',
+                damping: 15,
+                stiffness: 100,
+                delay: index * 100,
+              }}
+              style={[
+                styles.messageContainer,
+                message.isUser ? styles.userMessageContainer : styles.aiMessageContainer
+              ]}
+            >
+              <GlassCard 
+                style={message.isUser ? styles.userMessage : styles.aiMessage}
+              >
+                <Text style={[
+                  styles.messageText,
+                  message.isUser ? styles.userMessageText : styles.aiMessageText
+                ]}>
+                  {message.text}
+                </Text>
+                <Text style={[
+                  styles.messageTime,
+                  message.isUser ? styles.userMessageTime : styles.aiMessageTime
+                ]}>
+                  {formatTime(message.timestamp)}
+                </Text>
+              </GlassCard>
+            </MotiView>
+          ))}
+
+          {/* Typing Indicator */}
+          {isTyping && (
+            <MotiView
+              from={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              style={styles.typingContainer}
+            >
+              <GlassCard style={styles.typingCard}>
+                <View style={styles.typingDots}>
+                  <MotiView
+                    from={{ opacity: 0.3 }}
+                    animate={{ opacity: 1 }}
+                    transition={{
+                      loop: true,
+                      type: 'timing',
+                      duration: 600,
+                      delay: 0,
+                    }}
+                    style={styles.typingDot}
+                  />
+                  <MotiView
+                    from={{ opacity: 0.3 }}
+                    animate={{ opacity: 1 }}
+                    transition={{
+                      loop: true,
+                      type: 'timing',
+                      duration: 600,
+                      delay: 200,
+                    }}
+                    style={styles.typingDot}
+                  />
+                  <MotiView
+                    from={{ opacity: 0.3 }}
+                    animate={{ opacity: 1 }}
+                    transition={{
+                      loop: true,
+                      type: 'timing',
+                      duration: 600,
+                      delay: 400,
+                    }}
+                    style={styles.typingDot}
+                  />
+                </View>
+              </GlassCard>
+            </MotiView>
+          )}
+        </ScrollView>
+
+        {/* Input Area */}
+        <MotiView
+          from={{ opacity: 0, translateY: 50 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 100, delay: 300 }}
+          style={styles.inputContainer}
+        >
+          <GlassCard style={styles.inputCard}>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Share your thoughts..."
+                placeholderTextColor={Colors.text.muted}
+                value={inputText}
+                onChangeText={setInputText}
+                multiline
+                maxLength={500}
+                onSubmitEditing={handleSendMessage}
+                blurOnSubmit={false}
+              />
+              <GlassButton
+                title="Send"
+                onPress={handleSendMessage}
+                variant="primary"
+                size="sm"
+                style={styles.sendButton}
+                disabled={!inputText.trim()}
+              />
+            </View>
+          </GlassCard>
+        </MotiView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
-  titleContainer: {
+  background: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: Colors.background.primary,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    padding: Theme.layout.screen.paddingHorizontal,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
+  },
+  headerCard: {
+    alignItems: 'center',
+    paddingVertical: Spacing.lg,
+  },
+  headerTitle: {
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
+  },
+  headerSubtitle: {
+    fontSize: Typography.size.md,
+    color: Colors.text.secondary,
+  },
+  messagesContainer: {
+    flex: 1,
+    paddingHorizontal: Theme.layout.screen.paddingHorizontal,
+  },
+  messagesContent: {
+    paddingVertical: Spacing.md,
+    gap: Spacing.lg,
+  },
+  messageContainer: {
+    maxWidth: '85%',
+  },
+  userMessageContainer: {
+    alignSelf: 'flex-end',
+  },
+  aiMessageContainer: {
+    alignSelf: 'flex-start',
+  },
+  messageCard: {
+    padding: Spacing.lg,
+  },
+  userMessage: {
+    backgroundColor: Colors.primary.blue + '20',
+  },
+  aiMessage: {
+    backgroundColor: Colors.background.glass,
+  },
+  messageText: {
+    fontSize: Typography.size.md,
+    lineHeight: Typography.lineHeight.relaxed * Typography.size.md,
+    marginBottom: Spacing.sm,
+  },
+  userMessageText: {
+    color: Colors.text.primary,
+  },
+  aiMessageText: {
+    color: Colors.text.primary,
+  },
+  messageTime: {
+    fontSize: Typography.size.xs,
+    textAlign: 'right',
+  },
+  userMessageTime: {
+    color: Colors.text.secondary,
+  },
+  aiMessageTime: {
+    color: Colors.text.muted,
+  },
+  typingContainer: {
+    alignSelf: 'flex-start',
+    maxWidth: '85%',
+  },
+  typingCard: {
+    padding: Spacing.lg,
+    backgroundColor: Colors.background.glass,
+  },
+  typingDots: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  typingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.text.muted,
+  },
+  inputContainer: {
+    padding: Theme.layout.screen.paddingHorizontal,
+    paddingBottom: Spacing.lg,
+  },
+  inputCard: {
+    padding: Spacing.md,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: Spacing.md,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: Typography.size.md,
+    color: Colors.text.primary,
+    maxHeight: 100,
+    minHeight: 40,
+    textAlignVertical: 'center',
+    paddingVertical: Platform.OS === 'ios' ? Spacing.sm : 0,
+  },
+  sendButton: {
+    minWidth: 60,
+    paddingHorizontal: Spacing.md,
   },
 });

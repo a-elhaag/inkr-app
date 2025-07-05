@@ -1,15 +1,15 @@
+import { MotiView } from 'moti';
 import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
-import { MotiView } from 'moti';
 
 import { GlassCard } from '@/components/glass/GlassComponents';
-import { Theme, Colors, Spacing, Typography } from '@/constants/DesignSystem';
+import { Colors, Spacing, Theme, Typography } from '@/constants/DesignSystem';
 
 export default function SettingsScreen() {
   return (

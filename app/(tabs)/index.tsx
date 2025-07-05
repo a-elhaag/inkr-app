@@ -74,12 +74,6 @@ export default function HomeDashboard() {
                 withOrangeGlow
                 style={styles.actionButton}
               />
-              <GlassButton
-                title="Voice Memo"
-                onPress={() => console.log('Voice memo')}
-                variant="secondary"
-                style={styles.actionButton}
-              />
             </View>
           </MotiView>
 
